@@ -1,0 +1,25 @@
+{
+  "name": "ahwa-adventures",
+  "version": "1.0.0",
+  "description": "A take on the Wizards Castle",
+  "main": "./src/index.js",
+  "scripts": {
+    "start": "node ./src/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "type": "module",
+  "keywords": [
+    "RPG",
+    "Game",
+    "Role",
+    "Playing",
+    "Game"
+  ],
+  "author": "michaeladennis@yahoo.com",
+  "license": "SEE LICENSE IN license.md",
+  "dependencies": {
+    "readline": "^1.3.0",
+    "socket.io": "^4.7.2",
+    "socket.io-client": "^4.7.2"
+  }
+}

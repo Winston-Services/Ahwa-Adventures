@@ -7,5 +7,16 @@ class Weapon {
     { name: "Dagger", max: 1500, min: 10 },
     { name: "None", max: 0, min: 0 }
   ];
+
+  _type = "";
+  get type() {
+    return this._type;
+  }
+  set type(value) {
+    this._type = value;
+  }
+  constructor({ type = "None" }) {
+    this._type = type;
+  }
 }
 export { Weapon };

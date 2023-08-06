@@ -1,4 +1,5 @@
-import { AhwaAdeventure } from "./index.js";
+import { AhwaAdeventure, Treasure, Monster } from "./index.js";
+import { Monsters } from "../components/index.js";
 
 class GameMap {
   _type = "Standard";
@@ -33,7 +34,7 @@ class GameMap {
 
   Columns(randColumns) {
     let tempVal = [];
-    for (let k = 0; k <= randColumns; k++) {
+    for (let k = 0; k <= randColumns - 1; k++) {
       tempVal.push({
         column: k + 1,
         value: "x"
@@ -44,7 +45,7 @@ class GameMap {
 
   Rows(randRows, randColumns) {
     let tempVal = [];
-    for (let j = 0; j <= randRows; j++) {
+    for (let j = 0; j <= randRows - 1; j++) {
       tempVal.push({
         row: j + 1,
         columns: this.Columns(randColumns)
@@ -55,7 +56,7 @@ class GameMap {
 
   Levels(randLevels, randRows, randColumns) {
     let tempVal = [];
-    for (let i = 0; i <= randLevels; i++) {
+    for (let i = 0; i <= randLevels - 1; i++) {
       tempVal.push({
         level: i + 1,
         rows: this.Rows(randRows, randColumns)
@@ -63,9 +64,54 @@ class GameMap {
     }
     return tempVal;
   }
-
+  KnownMap(map) {
+    for (let level = 0; level < map._levels.length; level++) {
+      for (let row = 0; row < map._levels[level].rows.length; row++) {
+        for (
+          let column = 0;
+          column < map._levels[level].rows[row].columns.length;
+          column++
+        ) {
+          if (map._levels[level].rows[row].columns[column].value !== "E") {
+            map._levels[level].rows[row].columns[column].value = "X";
+          }
+        }
+      }
+    }
+    return map;
+  }
+  Show(player) {
+    player.known._levels[player.location[0]].rows[player.location[1]].columns[
+      player.location[2]
+    ].value = "<*>";
+    let str = "";
+    for (
+      let row = 0;
+      row < player.known._levels[player.location[0]].rows.length;
+      row++
+    ) {
+      player.known._levels[player.location[0]].rows[row].columns.forEach(
+        (column) => {
+          if (column.value instanceof Treasure) {
+            str += " T ";
+          } else if (column.value instanceof Monster) {
+            str += " M ";
+          } else if (column.value === "Z") {
+            str += " W ";
+          } else if (column.value === "<*>") {
+            str += "<*>";
+          } else {
+            str += ` ${column.value} `;
+            // console.log("Column in Show", column.value);
+          }
+        }
+      );
+      str += "\n";
+    }
+    return str;
+  }
   Map(randLevels, randRows, randColumns, mapName = "MainMap") {
-    const treasures = new Treasure();
+    const treasures = new Treasure({ name: "Treasure Chest" });
     this._map = mapName;
     this._levels = this.Levels(randLevels, randRows, randColumns);
     this._levels[0].rows[0].columns[3].value = "E";
@@ -122,6 +168,7 @@ class GameMap {
               } else if (roomObject !== "D" && roomObject !== "S") {
                 if (roomObject === "M") {
                   roomObject = Monster.getRandom();
+                  // console.log("Monster Room Object", roomObject);
                   this._levels[level].rows[row].columns[column].value =
                     roomObject;
                 }

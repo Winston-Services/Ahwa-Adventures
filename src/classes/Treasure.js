@@ -16,7 +16,8 @@ class Treasure {
     "The Palantir",
     "The Pale Pearl",
     "The Ruby Red",
-    "The Silmaril"
+    "The Silmaril",
+    "Treasure Chest"
   ];
   _removed = [];
   removeTreasure(treasure) {
@@ -26,12 +27,14 @@ class Treasure {
     let filtered = this._types.filter(
       (type) => this._removed.indexOf(type) === -1
     );
-    console.log(filtered);
     let types = AhwaAdeventure.randomize(filtered);
-    return types[0];
+    return new Treasure({ name: types[0] });
   }
   get length() {
     return this._types.length;
+  }
+  constructor({ name = "Treasure Chest" }) {
+    this._name = name;
   }
 }
 export { Treasure };

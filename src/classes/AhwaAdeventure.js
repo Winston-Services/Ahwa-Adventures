@@ -65,9 +65,9 @@ class AhwaAdeventure {
       "You stepped on a frog.",
       "You stepped in " + messAttribute + " shit.",
       "You hear a " + messAttribute + " snoring.",
-      "You get the strange feeling that you're playing The Wizard's Castle.",
+      "You get the strange feeling that you're playing a role playing game.",
       "You see messages written in " + messAttribute + " on the wall.",
-      "You think you hear Zot laughing at you.",
+      "You think you hear someone laughing at you.",
       "You suddenly have the feeling of deja vu.",
       "You start to wonder if you will ever make it out of here.",
       "You hear your stomach growling and feel hungry.",
@@ -79,8 +79,35 @@ class AhwaAdeventure {
       "You " + "yawned" + " loudly.",
       "You " + "coughed" + " loudly."
     ];
-    this.randomize(randMess);
+    AhwaAdeventure.randomize(randMess);
     return randMess[0];
+  }
+  ReadBook(instance, player) {
+    let goldLocation = instance.Find.Gold(player);
+    let randomMonster = instance.Find.Monster()[3].race;
+    let randomCharacter = AhwaAdeventure.randomize(player._races)[0].race;
+    let books = [
+      "it's another volume of Ahwa's poetry. Yeech!",
+      "it's an old copy of play {0}.".replace("{0}", randomMonster),
+      "it's a {0} cook book.".replace("{0}", randomCharacter),
+      "it's a self-improvement book on how to be a better {0}.".replace(
+        "{0}",
+        player.race
+      ),
+      "it's a treasure map leading to a pile of gold at ({0}, {1})"
+        .replace("{0}", goldLocation[1])
+        .replace("{1}", goldLocation[2]),
+      "it's a manual of {0}!".replace(
+        "{0}",
+        AhwaAdeventure.randomize(["dexterity", "intelligence", "strength"])[0]
+      ),
+      "FLASH! OH NO! YOU ARE NOW A BLIND {0}".replace("{0}", player.race),
+      "It sticks to your hands. Now you can't grab your {0}!".replace(
+        "{0}",
+        player.weapon
+      )
+    ];
+    return AhwaAdeventure.randomize(books)[0];
   }
   static random(max, min = 0) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -142,7 +169,7 @@ class AhwaAdeventure {
   _map;
   enterGame(player) {
     return (
-      `Ok, ${player.race}, you are now entering Zot's castle!\n` +
+      `Ok, ${player.race}, you are now entering Ahwa's castle!\n` +
       `Levels = ${this.map.adventure[0]}, Rows = ${this.map.adventure[1]}, Columns = ${this.map.adventure[2]}`
     );
   }
@@ -178,7 +205,7 @@ class AhwaAdeventure {
             this._map._levels[player.location[0]].rows[row].columns[column]
               .value === "G"
           ) {
-            return [player.locationp[0], row, column];
+            return [player.location[0], row, column];
           }
         }
       }
@@ -207,7 +234,30 @@ class AhwaAdeventure {
     Stairs: () => {},
     Chest: () => {},
     SinkHole: () => {},
-    Monster: () => {},
+    Monster: () => {
+      let level, row, column;
+      do {
+        level = AhwaAdeventure.random(this._map._levels.length - 1, 1);
+        row = AhwaAdeventure.random(
+          this._map._levels[level].rows.length - 1,
+          1
+        );
+        column = AhwaAdeventure.random(
+          this._map._levels[level].rows[row].columns.length - 1,
+          1
+        );
+        // console.log(this._map._levels[level].rows[row].columns[column].value);
+      } while (
+        !this._map._levels[level].rows[row].columns[column].value instanceof
+        Monster
+      );
+      return [
+        level,
+        row,
+        column,
+        this._map._levels[level].rows[row].columns[column].value
+      ];
+    },
     Zot: () => {
       let level;
       let row;
@@ -315,7 +365,7 @@ class AhwaAdeventure {
       const genderSelection = (race) => {
         return `Choose a gender ${race}, you can choose Male, Female or Other.`;
       };
-      return [genderSelection, choices];
+      return [genderSelection(player.race), choices];
     };
 
     const GetExtraPoints = (player) => {
@@ -330,36 +380,17 @@ class AhwaAdeventure {
         { name: "Increase Intelligence", value: "Intelligence" },
         { name: "Increase Strength", value: "Strength" }
       ];
-      return [pointsToDistribute, choices];
+      return [pointsToDistribute(player.race, player.extraPoints), choices];
     };
 
-    const GetArmor = async (player, prompt) => {
-      let action = null;
-      do {
-        let answers = prompt();
-      } while (action === null);
-    };
+    const GetArmor = async (player) => {};
 
-    const GetWeapon = async (player, prompt) => {
-      let action = null;
-      do {
-        let answers = prompt();
-      } while (action === null);
-    };
+    const GetWeapon = async (player) => {};
 
-    const GetLamp = async (player, prompt) => {
-      let action = null;
-      do {
-        let answers = prompt();
-      } while (action === null);
-    };
+    const GetLamp = async (player) => {};
 
-    const GetFlares = async (player, prompt) => {
-      let action = null;
-      do {
-        let answers = prompt();
-      } while (action === null);
-    };
+    const GetFlares = async (player) => {};
+
     this.GetRace = GetRace;
     this.GetSex = GetSex;
     this.GetExtraPoints = GetExtraPoints;

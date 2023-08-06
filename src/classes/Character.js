@@ -10,15 +10,17 @@ class Character {
     if (type !== undefined) {
       this._type = type;
     }
-    if (race !== undefined) {
-      if (this._races.indexOf(race) !== -1) {
-        if (race === "Macronies") {
-          this._handycap = 4;
+    if (type === "player") {
+      if (race !== undefined) {
+        if (this._races.indexOf(race) !== -1) {
+          if (race === "Macronies") {
+            this._handycap = 4;
+          }
+          this._extraPoints = this._basePoints - this._handycap;
+          this._race = race;
+        } else {
+          this._race = "Human";
         }
-        this._extraPoints = this._basePoints - this._handycap;
-        this._race = race;
-      } else {
-        this._race = "Human";
       }
     }
     if (maxPoints !== undefined) {
@@ -35,37 +37,37 @@ class Character {
     }
 
     const IncStength = (amount) => {
-      this._strength += amount;
+      this._strength += Number(amount);
       if (this._strength > this._maxPoints) {
         this._strength = this._maxPoints;
       }
     };
-    const IncDexterity = () => {
-      this._dexterity += amount;
+    const IncDexterity = (amount) => {
+      this._dexterity += Number(amount);
       if (this._dexterity > this._maxPoints) {
         this._dexterity = this._maxPoints;
       }
     };
-    const IncIntelligence = () => {
-      this._intelligence += amount;
+    const IncIntelligence = (amount) => {
+      this._intelligence += Number(amount);
       if (this._intelligence > this._maxPoints) {
         this._intelligence = this._maxPoints;
       }
     };
     const DecStength = (amount) => {
-      this._strength -= amount;
+      this._strength -= Number(amount);
       if (this._strength < 0) {
         this._strength = 0;
       }
     };
-    const DecDexterity = () => {
-      this._dexterity -= amount;
+    const DecDexterity = (amount) => {
+      this._dexterity -= Number(amount);
       if (this._dexterity < 0) {
         this._dexterity = 0;
       }
     };
-    const DecIntelligence = () => {
-      this._intelligence -= amount;
+    const DecIntelligence = (amount) => {
+      this._intelligence -= Number(amount);
       if (this._intelligence < 0) {
         this._intelligence = 0;
       }
@@ -323,5 +325,24 @@ class Character {
   set location(value) {
     this._location = value;
   }
+
+  Up() {
+    this._location = [
+      this._location[0] + 1,
+      this._location[1],
+      this._location[1]
+    ];
+  }
+  Down() {
+    this._location = [
+      this._location[0] - 1,
+      this._location[1],
+      this._location[1]
+    ];
+  }
+  North() {}
+  South() {}
+  East() {}
+  West() {}
 }
 export { Character };
