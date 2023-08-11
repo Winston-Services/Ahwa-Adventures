@@ -1,3 +1,5 @@
+import { AhwaAdeventure } from "./AhwaAdeventure.js";
+
 class Character {
   constructor({
     type = "player",
@@ -340,9 +342,55 @@ class Character {
       this._location[1]
     ];
   }
-  North() {}
-  South() {}
-  East() {}
-  West() {}
+  Sink() {
+    this._location[0] += 1;
+  }
+  North() {
+    if (this._location[1] === 0) {
+      this._location[1] =
+        this._known._levels[this._location[0]].rows.length - 1;
+    } else {
+      this._location[1] -= 1;
+    }
+  }
+  South() {
+    if (
+      this._location[1] ===
+      this._known._levels[this._location[0]].rows.length - 1
+    ) {
+      this._location[1] = 0;
+    } else {
+      this._location[1] += 1;
+    }
+  }
+  East() {
+    if (
+      this._location[2] ===
+      this._known._levels[this._location[0]].rows[this._location[1]].columns
+        .length -
+        1
+    ) {
+      this._location[2] = 0;
+    } else {
+      this._location[2] += 1;
+    }
+  }
+  West() {
+    if (this._location[2] === 0) {
+      this._location[2] =
+        this._known._levels[this._location[0]].rows[this._location[1]].columns
+          .length - 1;
+    } else {
+      this._location[2] -= 1;
+    }
+  }
+  Warp() {
+    let level = AhwaAdeventure.random(this._known._levels.length);
+    let row = AhwaAdeventure.random(this._known._levels[level].rows.length);
+    let column = AhwaAdeventure.random(
+      this._known._levels[level].rows[row].columns.length
+    );
+    this._location = [level, row, column];
+  }
 }
 export { Character };

@@ -227,8 +227,9 @@ async function chooseArmor(adventure) {
     case "plate":
       adventure.player.armor = PlateArmor;
       type = new Armor({})._types.filter(
-        (type) => type.name.replace(" ", "") !== "Plate"
+        (type) => type.name.replace(" ", "") === "Plate"
       );
+      // console.log("Chose : " , type);
       adventure.player.gold -=
         adventure.player.gold > 999 ? type[0].max : type[0].min;
       break;
@@ -236,7 +237,7 @@ async function chooseArmor(adventure) {
     case "chainmail":
       adventure.player.armor = ChainMailArmor;
       type = new Armor({})._types.filter(
-        (type) => type.name.replace(" ", "") !== "ChainMail"
+        (type) => type.name.replace(" ", "") === "ChainMail"
       );
       adventure.player.gold -=
         adventure.player.gold > 999 ? type[0].max : type[0].min;
@@ -245,7 +246,7 @@ async function chooseArmor(adventure) {
     case "leather":
       adventure.player.armor = LeatherArmor;
       type = new Armor({})._types.filter(
-        (type) => type.name.replace(" ", "") !== "Leather"
+        (type) => type.name.replace(" ", "") === "Leather"
       );
       adventure.player.gold -=
         adventure.player.gold > 999 ? type[0].max : type[0].min;
@@ -301,7 +302,7 @@ async function chooseWeapon(adventure) {
     switch (weapon) {
       case "Mace":
         type = new Weapon({})._types.filter(
-          (type) => type.name.replace(" ", "") !== "Mace"
+          (type) => type.name.replace(" ", "") === "Mace"
         );
         adventure.player.weapon = Weapons[weapon];
         adventure.player.gold -=
@@ -309,7 +310,7 @@ async function chooseWeapon(adventure) {
         break;
       case "Dagger":
         type = new Weapon({})._types.filter(
-          (type) => type.name.replace(" ", "") !== "Dagger"
+          (type) => type.name.replace(" ", "") === "Dagger"
         );
         adventure.player.weapon = Weapons[weapon];
         adventure.player.gold -=
@@ -317,7 +318,7 @@ async function chooseWeapon(adventure) {
         break;
       case "Sword":
         type = new Weapon({})._types.filter(
-          (type) => type.name.replace(" ", "") !== "Sword"
+          (type) => type.name.replace(" ", "") === "Sword"
         );
         adventure.player.weapon = Weapons[weapon];
         adventure.player.gold -=
@@ -674,7 +675,7 @@ function showMenu() {
   say("(Q)uit\tQuit the game.");
 }
 
-async function showMap() {
+async function showMap(adventure) {
   if (adventure.player.blind) {
     return Promise.resolve(
       say(
@@ -1421,6 +1422,7 @@ async function main() {
   await instructions();
   await wait(2000);
   clear();
+  
   // ToDo :: Reorganize Map Selection till after Character Selection.
   const mapType = await selectMapType();
   const gameMap = await generateMap(mapType);
@@ -1431,12 +1433,12 @@ async function main() {
     gameMap,
     player
   };
+  await setGamePlayLocation(adventure);
   await assignExtraPoints(adventure);
   await wait(1500);
   await selectArmor(adventure);
   await wait(1500);
   await selectWeapon(adventure);
-  await setGamePlayLocation(adventure);
   await wait(1500);
   await buyLampAndOil(adventure);
   await wait(1500);
