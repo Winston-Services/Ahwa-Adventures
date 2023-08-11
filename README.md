@@ -24,67 +24,59 @@ This will create a build folder with the executable build files. During the buil
 
 ## Characters
 
-1. Human _Extra Points_ = 8 _Handycap_ = 0
-
+1. Human _Extra Points_ = 8 _Handycap_ = 0<br/>
    Dexterity = 1
    Strength = 1
    Intelligence = 1
 
-1. Macronies _Extra Points_ = 8 _Handycap_ = 4
-
+1. Macronies _Extra Points_ = 8 _Handycap_ = 4<br/>
    Dexterity = 1
    Strength = 1
    Intelligence = 1
 
-1. Gnome _Extra Points_ = 8 _Handycap_ = 0
-
+1. Gnome _Extra Points_ = 8 _Handycap_ = 0<br/>
    Dexterity = 1
    Strength = 1
    Intelligence = 1
 
-1. Fairy _Extra Points_ = 8 _Handycap_ = 0
-
+1. Fairy _Extra Points_ = 8 _Handycap_ = 0<br/>
    Dexterity = 1
    Strength = 1
    Intelligence = 1
 
-1. Pixie _Extra Points_ = 8 _Handycap_ = 0
-
+1. Pixie _Extra Points_ = 8 _Handycap_ = 0<br/>
    Dexterity = 1
    Strength = 1
    Intelligence = 1
 
-1. Sprite _Extra Points_ = 8 _Handycap_ = 0
-
+1. Sprite _Extra Points_ = 8 _Handycap_ = 0<br/>
    Dexterity = 1
    Strength = 1
    Intelligence = 1
 
-1. Elf _Extra Points_ = 8 _Handycap_ = 0
-
+1. Elf _Extra Points_ = 8 _Handycap_ = 0<br/>
    Dexterity = 1
    Strength = 1
    Intelligence = 1
 
-1. Dwarf _Extra Points_ = 8 _Handycap_ = 0
-
+1. Dwarf _Extra Points_ = 8 _Handycap_ = 0<br/>
    Dexterity = 1
    Strength = 1
    Intelligence = 1
 
 ### Weapons
 
-> 1. Sword
-> 1. Mace
-> 1. Dagger
-> 1. None
+1. Sword
+1. Mace
+1. Dagger
+1. None
 
 ### Armor
 
-> 1. Plate
-> 1. Chain Mail
-> 1. Leather
-> 1. None
+1. Plate
+1. Chain Mail
+1. Leather
+1. None
 
 ### Lamp and Oil
 
@@ -98,42 +90,47 @@ Flares Per Purchase: 1
 
 ### Treasures
 
-> 1. The Blue Flame
-> 1. The Green Gem
-> 1. The Norn Stone
-> 1. The Opal Eye
-> 1. The Palantir
-> 1. The Pale Pearl
-> 1. The Ruby Red
-> 1. The Silmaril
-> 1. Treasure Chest
+1. The Blue Flame<br/>
+   The Blue Flame will cure you from having sticky fingers, and burn any stuck books that are in your hands.
+1. The Green Gem<br/>
+   The Green Gem cures your forgetfulness.
+1. The Norn Stone<br/>
+1. The Opal Eye<br/>
+   The Opal Eye cures your blindness!
+1. The Palantir<br/>
+1. The Pale Pearl<br/>
+   The Pale Pearl heals the curse of the Leech!
+1. The Ruby Red<br/>
+   The Ruby Red cures your Lethargy!
+1. The Silmaril<br/>
+1. Treasure Chest<br/>
 
 ### Curses
 
-> 1. Forgetfulness
-> 1. Leech
-> 1. Lethargy
+1. Forgetfulness
+1. Leech
+1. Lethargy
 
 ### Potions
 
-> 1. Dexterity
-> 1. Intelligence
-> 1. Strength
+1. Dexterity
+1. Intelligence
+1. Strength
 
 ## Monsters
 
-> 1. Balrog
-> 1. Bear
-> 1. Chimera
-> 1. Dragon
-> 1. Gargoyle
-> 1. Goblin
-> 1. Kobold
-> 1. Minotaur
-> 1. Ogre
-> 1. Orc
-> 1. Troll
-> 1. Wolf
+1. Balrog
+1. Bear
+1. Chimera
+1. Dragon
+1. Gargoyle
+1. Goblin
+1. Kobold
+1. Minotaur
+1. Ogre
+1. Orc
+1. Troll
+1. Wolf
 
 ## Vendors
 
@@ -141,4 +138,4 @@ Have you found a vendor? It's a perfect time to buy a new weapon, or some more f
 
 ## Game Map
 
-    The game map is made up of levels, floors, and rooms. The standard map has an 8x8x8 grid, where a random map will have a rNxrNxrN grid where r = Random and N = a number.
+The game map is made up of levels, floors, and rooms. The standard map has an 8x8x8 grid, where a random map will have a rNxrNxrN grid where r = Random and N = a number.

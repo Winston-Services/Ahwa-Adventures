@@ -1015,7 +1015,43 @@ async function playerBribe(adventure) {
   );
 }
 
-async function hasTreasures(adventure) {}
+async function hasTreasures(adventure) {
+  if (
+    adventure.player.treasures.indexOf("The Ruby Red") !== -1 &&
+    adventure.player.lethargy === true
+  ) {
+    adventure.player.lethargy = false;
+    say("The Ruby Red cures your Lethargy!");
+  }
+  if (
+    adventure.player.treasures.indexOf("The Pale Pearl") &&
+    adventure.player.leech === true
+  ) {
+    adventure.player.leech = false;
+    say("The Pale Pearl heals the curse of the Leech!");
+  }
+  if (
+    adventure.player.treasures.indexOf("The Opal Eye") &&
+    adventure.player.blind === true
+  ) {
+    adventure.player.blind = false;
+    say("The Opal Eye cures your blindness!");
+  }
+  if (
+    adventure.player.treasures.indexOf("The Green Gem") &&
+    adventure.player.forgetfulness === true
+  ) {
+    adventure.player.forgetfulness = false;
+    say("The Green Gem cures your forgetfulness!");
+  }
+  if (
+    adventure.player.treasures.indexOf("The Blue Flame") &&
+    adventure.player.bookStuck === true
+  ) {
+    adventure.player.bookStuck = false;
+    say("The Blue Flame burns the book off your hands!");
+  }
+}
 
 async function checkPlayerDeath(adventure) {
   if (
