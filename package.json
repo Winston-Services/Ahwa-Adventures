@@ -5,7 +5,8 @@
   "main": "./src/index.js",
   "scripts": {
     "start": "node ./src/index.js",
-    "build": "pkg .",
+    "convert": "babel ./src -d ./dist/bundle.js",
+    "build": "npm run convert && pkg ./dist/bundle.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "type": "module",
@@ -19,15 +20,23 @@
   "author": "michaeladennis@yahoo.com",
   "license": "SEE LICENSE IN license.md",
   "dependencies": {
-    "pkg": "^5.8.1",
     "readline": "^1.3.0",
     "socket.io": "^4.7.2",
     "socket.io-client": "^4.7.2"
   },
   "bin": "./src/index.js",
-  "pkg": {
-    "options": [
-      "experimental-modules"
+  "babel": {
+    "presets": [
+      "@babel/preset-env"
     ]
+  },
+  "pkg": {
+    "outputPath": "dist"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.22.10",
+    "@babel/core": "^7.22.10",
+    "@babel/preset-env": "^7.22.10",
+    "pkg": "^5.8.1"
   }
 }
