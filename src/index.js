@@ -1422,7 +1422,6 @@ async function main() {
   await instructions();
   await wait(2000);
   clear();
-  
   // ToDo :: Reorganize Map Selection till after Character Selection.
   const mapType = await selectMapType();
   const gameMap = await generateMap(mapType);

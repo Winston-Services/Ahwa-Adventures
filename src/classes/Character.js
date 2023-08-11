@@ -312,7 +312,7 @@ class Character {
     this._Webbed = value;
   }
 
-  _treasures = null;
+  _treasures = [];
   get treasures() {
     return this._treasures;
   }

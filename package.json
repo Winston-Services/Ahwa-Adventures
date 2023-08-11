@@ -5,6 +5,7 @@
   "main": "./src/index.js",
   "scripts": {
     "start": "node ./src/index.js",
+    "build": "pkg .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "type": "module",
@@ -18,8 +19,15 @@
   "author": "michaeladennis@yahoo.com",
   "license": "SEE LICENSE IN license.md",
   "dependencies": {
+    "pkg": "^5.8.1",
     "readline": "^1.3.0",
     "socket.io": "^4.7.2",
     "socket.io-client": "^4.7.2"
+  },
+  "bin": "./src/index.js",
+  "pkg": {
+    "options": [
+      "experimental-modules"
+    ]
   }
 }
