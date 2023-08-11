@@ -22,7 +22,7 @@ import {
 
 const rl = readline.createInterface(process.stdin, process.stdout);
 const say = (m) => console.log(m);
-const clear = () => console.clear();
+const clear = () => {}; //console.clear();
 const ask = (q) => rl.question(q);
 
 function intro() {
@@ -618,6 +618,422 @@ function setVisableMap(adventure, level, row, column) {
   }
 }
 
+function isCursed(adventure) {
+  if (adventure.player.blind) {
+    say(`You are blind.`);
+  }
+  if (adventure.player.forgetfulness) {
+    say(
+      `{You} are cursed with forgetfulness.`.replace(
+        "{You}",
+        "You " + adventure.player.race
+      )
+    );
+  }
+  if (adventure.player.leech) {
+    say(`You have a leech affliction.`);
+  }
+  if (adventure.player.lethargy) {
+    say(`You are cursed with Lethargy.`);
+  }
+}
+
+function sayCurrentPlayerLocation(adventure) {
+  say(
+    `You are at (${adventure.player.location[1] + 1},${
+      adventure.player.location[2] + 1
+    }) Level ${adventure.player.location[0] + 1}`
+  );
+}
+
+function sayCurrentPlayerStats(adventure) {
+  say(
+    `Dexterity = ${adventure.player.dexterity}  Intelligence = ${adventure.player.intelligence}  Strength = ${adventure.player.strength}`
+  );
+}
+
+function showMenu() {
+  say("You can do the following actions.");
+  say("Options:");
+  say("(M)ap\tView the Map.");
+  say("(G)aze\tGaze in to a Crystal Ball.");
+  say("(O)pen\tOpen a Treasure Chest.");
+  say("(P)ool\tDrink from the pool.");
+  say("(F)lare\tLight a flare.");
+  say("(L)amp\tShine your lamp.");
+  say("(E)ast\tMove East.");
+  say("(N)orth\tMove North.");
+  say("(S)outh\tMove South.");
+  say("(W)est\tMove West.");
+  say("(U)p\tGo up stairs.");
+  say("(D)own\tGo down stairs.");
+  say("(T)eleport\tTeleport to another location on the map.");
+  say("(A)ttack\tAttack a monster or vendor.");
+  say("(R)etreat\tRetreat from battle.");
+  say("(B)ribe\tBribe a vendor.");
+  say("(Q)uit\tQuit the game.");
+}
+
+async function showMap() {
+  if (adventure.player.blind) {
+    return Promise.resolve(
+      say(
+        "Blind {RACE} you can't see your map.".replace(
+          "{RACE}",
+          adventure.player.race
+        )
+      )
+    );
+  } else await showKnownMap(adventure);
+}
+
+async function gazeInToOrb(adventure) {
+  if (
+    adventure.game.map.levels[adventure.player.location[0]].rows[
+      adventure.player.location[1]
+    ].columns[adventure.player.location[2]].value === "O" &&
+    !adventure.player.blind
+  ) {
+    // OrbGaze(adventure); // Invoke Orb
+    let gaze = "bloody heap";
+    say("You gaze into the orb and see {CONTENT}".replace("{CONTENT}", gaze));
+    if (gaze === "bloody heap") {
+      let strengthLoss = AhwaAdeventure.random(3);
+      say(
+        "Seeing {0} causes you to loose {1} strength points!"
+          .replace("{0}", gaze)
+          .replace("{1}", strengthLoss)
+      );
+      adventure.player.dec.strength(strengthLoss);
+    }
+  } else if (!adventure.player.blind) {
+    say(
+      "{RACE} there's no orb to Gaze upon.".replace(
+        "{RACE}",
+        adventure.player.race
+      )
+    );
+  } else {
+    say(
+      "Blind {RACE} you can't see the nose on your face let alone Gaze into anything.".replace(
+        "{RACE}",
+        adventure.player.race
+      )
+    );
+  }
+}
+
+async function openABook(adventure) {
+  if (
+    adventure.game.map.levels[adventure.player.location[0]].rows[
+      adventure.player.location[1]
+    ].columns[adventure.player.location[2]].value === "B"
+  ) {
+    if (adventure.player.blind) {
+      say(
+        "You're blind, your not able to see your hands in front of your face. Let alone read a book that's not done in brail."
+      );
+    } else {
+      say(
+        "You open the book and {0}".replace(
+          "{0}",
+          adventure.game.ReadBook(adventure.game, adventure.player)
+        )
+      );
+      adventure.game.map.levels[adventure.player.location[0]].rows[
+        adventure.player.location[1]
+      ].columns[adventure.player.location[2]].value = "X";
+      adventure.player.known.levels[adventure.player.location[0]].rows[
+        adventure.player.location[1]
+      ].columns[adventure.player.location[2]].value = "-";
+    }
+  } else if (
+    adventure.game.map.levels[adventure.player.location[0]].rows[
+      adventure.player.location[1]
+    ].columns[adventure.player.location[2]].value === "C"
+  ) {
+    adventure.game.map.levels[adventure.player.location[0]].rows[
+      adventure.player.location[1]
+    ].columns[adventure.player.location[2]].value = "X";
+    adventure.player.known.levels[adventure.player.location[0]].rows[
+      adventure.player.location[1]
+    ].columns[adventure.player.location[2]].value = "-";
+    say("You open a chest and found a {0}".replace("{0}", "Treasure Chest"));
+  } else {
+    say(
+      "{RACE} the only thing you opened was your mind.".replace(
+        "{RACE}",
+        adventure.player.race
+      )
+    );
+  }
+}
+
+async function drinkFromPool(adventure) {
+  if (
+    adventure.game.map.levels[adventure.player.location[0]].rows[
+      adventure.player.location[1]
+    ].columns[adventure.player.location[2]].value === "P"
+  ) {
+    say("You drink from the pool and {0}");
+  } else {
+    say("If your thirsty find a pool.");
+  }
+}
+
+async function lightAFlair(adventure) {
+  if (adventure.player.blind) {
+    say(
+      "you're BLIND {0} and you don't want to burn your fingers.".replace(
+        "{0}",
+        adventure.player.race
+      )
+    );
+  } else {
+    if (adventure.player.flares < 0) {
+      adventure.player.flares -= 1;
+      const [level, row, column] = adventure.player.location;
+      let rowMinus = row - 1;
+      if (rowMinus < 0) {
+        rowMinus = adventure.game.levels[level].rows.length - 1;
+      }
+      let rowPlus = row + 1;
+      if (rowPlus > adventure.game.levels[level].rows.length - 1) {
+        rowPlus = 0;
+      }
+      let columnMinus = column - 1;
+      if (columnMinus < 0) {
+        columnMinus = adventure.game.levels[level].rows[row].columns.length - 1;
+      }
+      let columnPlus = column + 1;
+      if (
+        columnPlus >
+        adventure.game.levels[level].rows[row].columns.length - 1
+      ) {
+        columnPlus = 0;
+      }
+      setVisableMap(adventure, level, rowMinus, columnMinus);
+      setVisableMap(adventure, level, rowMinus, column);
+      setVisableMap(adventure, level, rowMinus, columnPlus);
+      setVisableMap(adventure, level, row, columnMinus);
+      setVisableMap(adventure, level, row, columnPlus);
+      setVisableMap(adventure, level, rowPlus, columnMinus);
+      setVisableMap(adventure, level, rowPlus, column);
+      setVisableMap(adventure, level, rowPlus, columnPlus);
+      return showKnownMap(adventure);
+    } else {
+      const phrases = [
+        "Hey bright one, you don't have any flares.",
+        "You sing 'Come on baby light my fire' to yourself as you are out of flares.",
+        "You can't use flares you don't have, but maybe your smile will brighten the room.",
+        "You spend 5 minutes searching your rucksack before you realize you have no flares."
+      ];
+      say(AhwaAdeventure.randomize(phrases)[0]);
+    }
+  }
+}
+
+async function shineALamp(adventure) {
+  if (adventure.player.blind) {
+    say(
+      "you're BLIND {0} and you can't see anything.".replace(
+        "{0}",
+        adventure.player.race
+      )
+    );
+  } else {
+    if (adventure.player.lamp && adventure.player.lampBurn > 0) {
+      const [level, row, column] = adventure.player.location;
+      let rowMinus = row - 1;
+      if (rowMinus < 0) {
+        rowMinus = adventure.game.levels[level].rows.length - 1;
+      }
+      let rowPlus = row + 1;
+      if (rowPlus > adventure.game.levels[level].rows.length - 1) {
+        rowPlus = 0;
+      }
+      let columnMinus = column - 1;
+      if (columnMinus < 0) {
+        columnMinus = adventure.game.levels[level].rows[row].columns.length - 1;
+      }
+      let columnPlus = column + 1;
+      if (
+        columnPlus >
+        adventure.game.levels[level].rows[row].columns.length - 1
+      ) {
+        columnPlus = 0;
+      }
+      say("Shine the Lamp in which direction?");
+      const answer = await ask(
+        "Choose One : \n Enter [(N)orth, (S)outh, (E)ast, (W)est]\n "
+      );
+      battleOver = true;
+      adventure.player.lampBurn -= 1;
+      if (answer.toLowerCase().match(/e|east/g) !== null) {
+        setVisableMap(adventure, level, row, columnPlus);
+      }
+      if (answer.toLowerCase().match(/n|north/g) !== null) {
+        setVisableMap(adventure, level, rowMinus, column);
+      }
+      if (answer.toLowerCase().match(/s|south/g) !== null) {
+        setVisableMap(adventure, level, rowPlus, column);
+      }
+      if (answer.toLowerCase().match(/w|west/g) !== null) {
+        setVisableMap(adventure, level, row, columnMinus);
+      }
+      return showKnownMap(adventure);
+    } else if (!adventure.player.lamp) {
+      say(
+        "Sorry, {0}, you don't have a Lamp.".replace(
+          "{0}",
+          adventure.player.race
+        )
+      );
+    } else {
+      say(
+        "Sorry, {0}, your Lamp is out of oil.".replace(
+          "{0}",
+          adventure.player.race
+        )
+      );
+    }
+  }
+}
+
+async function movePlayerDownStairs(adventure) {
+  if (
+    adventure.mape.levels[adventure.player.location[0]].rows[
+      adventure.player.location[1]
+    ].columns[adventure.player.location[2]].value === "D"
+  ) {
+    adventure.player.Down();
+  } else {
+    say(
+      "If there were stair going down then you could desend, but there's not."
+    );
+  }
+}
+
+async function movePlayerUpStairs(adventure) {
+  if (
+    adventure.mape.levels[adventure.player.location[0]].rows[
+      adventure.player.location[1]
+    ].columns[adventure.player.location[2]].value === "U"
+  ) {
+    adventure.player.Up();
+  } else {
+    say("If there were stair going up then you could asend, but there's not.");
+  }
+}
+
+async function teleportPlayer(adventure) {
+  if (adventure.player.runestaff) {
+    say("The Runestaff you carry starts to vibrate with energy.");
+    do {
+      let tempValue;
+      do {
+        tempValue = await ask(
+          "Please enter the destination. (ex. 0,0,3) Meaning Level 0, Row 0, Column 0\n"
+        );
+        if (tempValue.match(/^\d{1,2},\d{1,2},\d{1,2}$/) === null) {
+          say(
+            "I understand your a {0} and a little slow.".replace(
+              "{0}",
+              adventure.player.race
+            )
+          );
+          await wait(1000);
+        }
+      } while (tempValue.match(/^\d{1,2},\d{1,2},\d{1,2}$/) === null);
+      tempValue = tempValue.split(",").map((v) => Number(v));
+      function OutOfBounds(coords, adventure) {
+        if (coords[0] - 1 > adventure.game.levels.length) return true;
+        if (coords[1] - 1 > adventure.game.levels[coords[0] - 1].rows.length)
+          return true;
+        if (
+          coords[2] - 1 >
+          adventure.game.levels[coords[0] - 1].rows[coords[1] - 1].columns
+            .length
+        )
+          return true;
+        if (coords[0] < 0 || coords[1] < 0 || coords[2] < 0) return true;
+        return false;
+      }
+      if (OutOfBounds(tempValue, adventure)) {
+        say(
+          "Try picking an existing location on the map {0}".replace(
+            "{0}",
+            adventure.player.race
+          )
+        );
+      } else {
+        monsterIgnore = false;
+        say(
+          `Teleporting you to Level ${tempValue[0]}, Row ${tempValue[1]}, Column ${tempValue[2]}`
+        );
+        adventure.player.location[0] = tempValue[0] - 1;
+        adventure.player.location[1] = tempValue[1] - 1;
+        adventure.player.location[2] = tempValue[2] - 1;
+        action = "Teleport";
+        nocommand = true;
+      }
+    } while (action === "T");
+  } else {
+    say(
+      "You shout out into the room\n\t{0} Teleport\nbut thing happens, you realize you need the Runestaff to teleport.".replace(
+        "{0}",
+        adventure.player.race
+      )
+    );
+  }
+}
+
+async function playerAttack(adventure) {
+  say(
+    "You strike out with your {0} and knock the air right out. Hmm mayber there isn't anything here to attack.".replace(
+      "{0}",
+      adventure.player.weapon.type === "None"
+        ? "hand"
+        : adventure.player.weapon.type
+    )
+  );
+}
+
+async function playerRetreat(adventure) {
+  say(
+    "Time to hi-tail it out of here. Nice one, {0}! Escape with your life, who needs dignity.".replace(
+      "{0}",
+      adventure.player.race
+    )
+  );
+}
+
+async function playerBribe(adventure) {
+  say(
+    "Dumb {0}, you cant bribe thin air.".replace("{0}", adventure.player.race)
+  );
+}
+
+async function hasTreasures(adventure) {}
+
+async function checkPlayerDeath(adventure) {
+  if (
+    adventure.player.dexterity < 1 ||
+    adventure.player.intelligence < 1 ||
+    adventure.player.strength < 1
+  ) {
+    adventure.player.nocommand = true;
+    adventure.player.action = "Q";
+    return playerDeath(adventure);
+  }
+}
+
+function playerLocationValue(adventure) {
+  return adventure.game.map.levels[adventure.player.location[0]].rows[
+    adventure.player.location[1]
+  ].columns[adventure.player.location[2]].value;
+}
+
 async function play(adventure) {
   do {
     // clear();
@@ -627,72 +1043,30 @@ async function play(adventure) {
     const [level, row, column, monster] = adventure.game.Find.Monster();
     say(adventure.game.GameMessage(monster.race));
     // console.log(gameMap);
-    let action = "S";
-
-    let nocommand = false;
+    adventure.player.action = "S";
+    adventure.player.monsterIgnore = true;
+    adventure.player.nocommand = false;
     do {
-      if (
-        adventure.player.dexterity < 1 ||
-        adventure.player.intelligence < 1 ||
-        adventure.player.strength < 1
-      ) {
-        nocommand = true;
-        action = "Q";
-        return playerDeath(adventure);
-      }
+      await checkPlayerDeath(adventure);
       adventure.player.turns += 1;
-      if (
-        adventure.player.known.levels[adventure.player.location[0]].rows[
-          adventure.player.location[1]
-        ].columns[adventure.player.location[2]].value === "X"
-      ) {
-        adventure.player.known.levels[adventure.player.location[0]].rows[
-          adventure.player.location[1]
-        ].columns[adventure.player.location[2]].value = "-";
+      if (playerLocationValue(adventure) === "X") {
+        playerLocationValue(adventure) = "-";
       }
 
-      say(
-        `You are at (${adventure.player.location[1] + 1},${
-          adventure.player.location[2] + 1
-        }) Level ${adventure.player.location[0] + 1}`
-      );
-      say(
-        `Dexterity = ${adventure.player.dexterity}  Intelligence = ${adventure.player.intelligence}  Strength = ${adventure.player.strength}`
-      );
+      sayCurrentPlayerLocation(adventure);
+      sayCurrentPlayerStats(adventure);
+
       if (adventure.player.Runestaff) {
         say("You have the Runestaff!");
       }
 
       // check player treasures
-
-      let cursed = "";
-      if (adventure.player.blind) {
-        cursed += "Blind ";
-      }
-      if (adventure.player.forgetfulness) {
-        cursed += "Forgetfulness ";
-      }
-      if (adventure.player.leech) {
-        cursed += "Leech ";
-      }
-      if (adventure.player.lethargy) {
-        cursed += "Lethargy";
-      }
-      if (cursed.length > 0) {
-        say(`You are cursed with ${cursed}.`);
-      }
+      await hasTreasures(adventure);
+      isCursed(adventure);
       // entrancein room sequence
-      if (
-        adventure.game.map.levels[adventure.player.location[0]].rows[
-          adventure.player.location[1]
-        ].columns[adventure.player.location[2]].value === "E"
-      ) {
+      if (playerLocationValue(adventure) === "E") {
         say("Here you find the Entrance.");
-      } else if (
-        adventure.game.map.levels[adventure.player.location[0]].rows[
-          adventure.player.location[1]
-        ].columns[adventure.player.location[2]].value instanceof Treasure
-      ) {
+      } else if (playerLocationValue(adventure) instanceof Treasure) {
         // Treasure Sequence
         say(
           "You find {0}, The {0} is now yours!".replaceAll(
@@ -713,11 +1087,7 @@ async function play(adventure) {
         adventure.player.known.levels[adventure.player.location[0]].rows[
           adventure.player.location[1]
         ].columns[adventure.player.location[2]].value = "-";
-      } else if (
-        adventure.game.map.levels[adventure.player.location[0]].rows[
-          adventure.player.location[1]
-        ].columns[adventure.player.location[2]].value === "G"
-      ) {
+      } else if (playerLocationValue(adventure) === "G") {
         // Gold Sequence
         const gold = AhwaAdeventure.random(1000, 1);
         adventure.player.gold += gold;
@@ -729,11 +1099,7 @@ async function play(adventure) {
           adventure.player.location[1]
         ].columns[adventure.player.location[2]].value = "-";
         say(`You found some gold, and now have ${adventure.player.gold} gold.`);
-      } else if (
-        adventure.game.map.levels[adventure.player.location[0]].rows[
-          adventure.player.location[1]
-        ].columns[adventure.player.location[2]].value === "F"
-      ) {
+      } else if (playerLocationValue(adventure) === "F") {
         //Flares in room sequence
         say("You have found flares.");
         const flares = AhwaAdeventure.random(10, 1);
@@ -747,81 +1113,41 @@ async function play(adventure) {
         say(
           `You found ${flares} flares, and now have ${adventure.player.flares} flares.`
         );
-      } else if (
-        adventure.game.map.levels[adventure.player.location[0]].rows[
-          adventure.player.location[1]
-        ].columns[adventure.player.location[2]].value === "S"
-      ) {
+      } else if (playerLocationValue(adventure) === "S") {
         //Sink Hole in room
         say("You have found a Sink-Hole.");
         say("You sink to the next level!");
         await wait(2000);
         adventure.player.Sink();
         nocommand = true;
-      } else if (
-        adventure.game.map.levels[adventure.player.location[0]].rows[
-          adventure.player.location[1]
-        ].columns[adventure.player.location[2]].value === "W"
-      ) {
+      } else if (playerLocationValue(adventure) === "W") {
         // Warp in room
         say("You have found a warp.");
         say("You are being warped!");
         await wait(2000);
         adventure.player.Warp();
         nocommand = true;
-      } else if (
-        adventure.game.map.levels[adventure.player.location[0]].rows[
-          adventure.player.location[1]
-        ].columns[adventure.player.location[2]].value === "O"
-      ) {
+      } else if (playerLocationValue(adventure) === "O") {
         // Crystal Orb
         say("You have found a Crystal Orb.");
-      } else if (
-        adventure.game.map.levels[adventure.player.location[0]].rows[
-          adventure.player.location[1]
-        ].columns[adventure.player.location[2]].value === "D"
-      ) {
+      } else if (playerLocationValue(adventure) === "D") {
         // Stairs down
         say("You have found stairs leading down.");
-      } else if (
-        adventure.game.map.levels[adventure.player.location[0]].rows[
-          adventure.player.location[1]
-        ].columns[adventure.player.location[2]].value === "U"
-      ) {
+      } else if (playerLocationValue(adventure) === "U") {
         // stairs up
         say("You have found stairs leading up.");
-      } else if (
-        adventure.game.map.levels[adventure.player.location[0]].rows[
-          adventure.player.location[1]
-        ].columns[adventure.player.location[2]].value === "X"
-      ) {
+      } else if (playerLocationValue(adventure) === "X") {
         // empty room
-      } else if (
-        adventure.game.map.levels[adventure.player.location[0]].rows[
-          adventure.player.location[1]
-        ].columns[adventure.player.location[2]].value === "B"
-      ) {
+      } else if (playerLocationValue(adventure) === "B") {
         // book in the room
         say("You have found a book to read.");
-      } else if (
-        adventure.game.map.levels[adventure.player.location[0]].rows[
-          adventure.player.location[1]
-        ].columns[adventure.player.location[2]].value === "C"
-      ) {
+      } else if (playerLocationValue(adventure) === "C") {
         // chest in room
         say("You have found a treasure chest.");
-      } else if (
-        adventure.game.map.levels[adventure.player.location[0]].rows[
-          adventure.player.location[1]
-        ].columns[adventure.player.location[2]].value === "P"
-      ) {
+      } else if (playerLocationValue(adventure) === "P") {
         // pool in room
-        say("Nice, it's a pool. Bet you cant wait to dive in.");
-      } else if (
-        adventure.game.map.levels[adventure.player.location[0]].rows[
-          adventure.player.location[1]
-        ].columns[adventure.player.location[2]].value === "Z"
-      ) {
+        say("Nice, it's a pool. Bet you cant wait to dive in or take a drink.");
+      } else if (playerLocationValue(adventure) === "Z") {
         // Orb Of Zot in room
         if (action === "Teleport") {
           say("You have found the Orb-Of-Zot!");
@@ -851,11 +1177,7 @@ async function play(adventure) {
             }
           }
         }
-      } else if (
-        adventure.game.map.levels[adventure.player.location[0]].rows[
-          adventure.player.location[1]
-        ].columns[adventure.player.location[2]].value instanceof Monster
-      ) {
+      } else if (playerLocationValue(adventure) instanceof Monster) {
         // Monster or Vendor in room.
         const monster =
           adventure.game.map.levels[adventure.player.location[0]].rows[
@@ -906,7 +1228,7 @@ async function play(adventure) {
           }
         }
         battleOver = false;
-        firstAttachRound = true;
+        firstAttackRound = true;
         while (
           monster.mad &&
           adventure.player.strength > 0 &&
@@ -1011,416 +1333,75 @@ async function play(adventure) {
         }
       }
 
-      if (
-        adventure.player.dexterity < 1 ||
-        adventure.player.intelligence < 1 ||
-        adventure.player.strength < 1
-      ) {
-        nocommand = true;
-        action = "Q";
-        return playerDeath(adventure);
-      }
+      await checkPlayerDeath(adventure);
 
-      if (nocommand === false) {
+      if (adventure.player.nocommand === false) {
         await wait(1000);
         clear();
-        say("You can do the following actions.");
-        say("Options:");
-        say("(M)ap\tView the Map.");
-        say("(G)aze\tGaze in to a Crystal Ball.");
-        say("(O)pen\tOpen a Treasure Chest.");
-        say("(P)ool\tDrink from the pool.");
-        say("(F)lare\tLight a flare.");
-        say("(L)amp\tShine your lamp.");
-        say("(E)ast\tMove East.");
-        say("(N)orth\tMove North.");
-        say("(S)outh\tMove South.");
-        say("(W)est\tMove West.");
-        say("(U)p\tGo up stairs.");
-        say("(D)own\tGo down stairs.");
-        say("(T)eleport\tTeleport to another location on the map.");
-        say("(A)ttack\tAttack a monster or vendor.");
-        say("(R)etreat\tRetreat from battle.");
-        say("(B)ribe\tBribe a vendor.");
-        say("(Q)uit\tQuit the game.");
+        showMenu();
         // ShowActions();
         let answer = await ask("Your command?");
-        switch (answer) {
-          case "M": //Map
-            if (adventure.player.blind) {
-              say(
-                "Blind {RACE} you can't see your map.".replace(
-                  "{RACE}",
-                  adventure.player.race
-                )
-              );
-            } else await showKnownMap(adventure);
+        switch (answer.toLowerCase().substring(0, 1)) {
+          case "m": //Map
+            await showMap(adventure);
             break;
-          case "G": //Gaze
-            if (
-              adventure.game.map.levels[adventure.player.location[0]].rows[
-                adventure.player.location[1]
-              ].columns[adventure.player.location[2]].value === "O" &&
-              !adventure.player.blind
-            ) {
-              // OrbGaze(adventure); // Invoke Orb
-              let gaze = "bloody heap";
-              say(
-                "You gaze into the orb and see {CONTENT}".replace(
-                  "{CONTENT}",
-                  gaze
-                )
-              );
-              if (gaze === "bloody heap") {
-                let strengthLoss = AhwaAdeventure.random(3);
-                say(
-                  "Seeing {0} causes you to loose {1} strength points!"
-                    .replace("{0}", gaze)
-                    .replace("{1}", strengthLoss)
-                );
-                adventure.player.dec.strength(strengthLoss);
-              }
-            } else if (!adventure.player.blind) {
-              say(
-                "{RACE} there's no orb to Gaze upon.".replace(
-                  "{RACE}",
-                  adventure.player.race
-                )
-              );
-            } else {
-              say(
-                "Blind {RACE} you can't see the nose on your face let alone Gaze into anything.".replace(
-                  "{RACE}",
-                  adventure.player.race
-                )
-              );
-            }
+          case "g": //Gaze
+            await gazeInToOrb(adventure);
             break;
-          case "O": //Open
-            if (
-              adventure.game.map.levels[adventure.player.location[0]].rows[
-                adventure.player.location[1]
-              ].columns[adventure.player.location[2]].value === "B"
-            ) {
-              if (adventure.player.blind) {
-                say(
-                  "You're blind, your not able to see your hands in front of your face. Let alone read a book that's not done in brail."
-                );
-              } else {
-                say(
-                  "You open the book and {0}".replace(
-                    "{0}",
-                    adventure.game.ReadBook(adventure.game, adventure.player)
-                  )
-                );
-                adventure.game.map.levels[adventure.player.location[0]].rows[
-                  adventure.player.location[1]
-                ].columns[adventure.player.location[2]].value = "X";
-                adventure.player.known.levels[
-                  adventure.player.location[0]
-                ].rows[adventure.player.location[1]].columns[
-                  adventure.player.location[2]
-                ].value = "-";
-              }
-            } else if (
-              adventure.game.map.levels[adventure.player.location[0]].rows[
-                adventure.player.location[1]
-              ].columns[adventure.player.location[2]].value === "C"
-            ) {
-              adventure.game.map.levels[adventure.player.location[0]].rows[
-                adventure.player.location[1]
-              ].columns[adventure.player.location[2]].value = "X";
-              adventure.player.known.levels[adventure.player.location[0]].rows[
-                adventure.player.location[1]
-              ].columns[adventure.player.location[2]].value = "-";
-              say(
-                "You open a chest and found a {0}".replace(
-                  "{0}",
-                  "Treasure Chest"
-                )
-              );
-            } else {
-              say(
-                "{RACE} the only thing you opened was your mind.".replace(
-                  "{RACE}",
-                  adventure.player.race
-                )
-              );
-            }
+          case "o": //Open
+            await openABook(adventure);
             break;
-          case "P": //Drink
-            if (
-              adventure.game.map.levels[adventure.player.location[0]].rows[
-                adventure.player.location[1]
-              ].columns[adventure.player.location[2]].value === "P"
-            ) {
-              say("You drink from the pool and {0}");
-            } else {
-              say("If your thirsty find a pool.");
-            }
+          case "p": //Drink
+            await drinkFromPool(adventure);
             break;
-          case "F": //Light A Fla
-            if (adventure.player.blind) {
-              say(
-                "you're BLIND {0} and you don't want to burn your fingers.".replace(
-                  "{0}",
-                  adventure.player.race
-                )
-              );
-            } else {
-              if (adventure.player.flares < 0) {
-                adventure.player.flares -= 1;
-                const [level, row, column] = adventure.player.location;
-                let rowMinus = row - 1;
-                if (rowMinus < 0) {
-                  rowMinus = adventure.game.levels[level].rows.length - 1;
-                }
-                let rowPlus = row + 1;
-                if (rowPlus > adventure.game.levels[level].rows.length - 1) {
-                  rowPlus = 0;
-                }
-                let columnMinus = column - 1;
-                if (columnMinus < 0) {
-                  columnMinus =
-                    adventure.game.levels[level].rows[row].columns.length - 1;
-                }
-                let columnPlus = column + 1;
-                if (
-                  columnPlus >
-                  adventure.game.levels[level].rows[row].columns.length - 1
-                ) {
-                  columnPlus = 0;
-                }
-                setVisableMap(adventure, level, rowMinus, columnMinus);
-                setVisableMap(adventure, level, rowMinus, column);
-                setVisableMap(adventure, level, rowMinus, columnPlus);
-                setVisableMap(adventure, level, row, columnMinus);
-                setVisableMap(adventure, level, row, columnPlus);
-                setVisableMap(adventure, level, rowPlus, columnMinus);
-                setVisableMap(adventure, level, rowPlus, column);
-                setVisableMap(adventure, level, rowPlus, columnPlus);
-                return showKnownMap(adventure);
-              } else {
-                const phrases = [
-                  "Hey bright one, you don't have any flares.",
-                  "You sing 'Come on baby light my fire' to yourself as you are out of flares.",
-                  "You can't use flares you don't have, but maybe your smile will brighten the room.",
-                  "You spend 5 minutes searching your rucksack before you realize you have no flares."
-                ];
-                say(AhwaAdeventure.randomize(phrases)[0]);
-              }
-            }
+          case "f": //Light A Fla
+            await lightAFlair(adventure);
             break;
-          case "L": //Shine a Lamp
-            if (adventure.player.blind) {
-              say(
-                "you're BLIND {0} and you can't see anything.".replace(
-                  "{0}",
-                  adventure.player.race
-                )
-              );
-            } else {
-              if (adventure.player.lamp && adventure.player.lampBurn > 0) {
-                const [level, row, column] = adventure.player.location;
-                let rowMinus = row - 1;
-                if (rowMinus < 0) {
-                  rowMinus = adventure.game.levels[level].rows.length - 1;
-                }
-                let rowPlus = row + 1;
-                if (rowPlus > adventure.game.levels[level].rows.length - 1) {
-                  rowPlus = 0;
-                }
-                let columnMinus = column - 1;
-                if (columnMinus < 0) {
-                  columnMinus =
-                    adventure.game.levels[level].rows[row].columns.length - 1;
-                }
-                let columnPlus = column + 1;
-                if (
-                  columnPlus >
-                  adventure.game.levels[level].rows[row].columns.length - 1
-                ) {
-                  columnPlus = 0;
-                }
-                say("Shine the Lamp in which direction?");
-                const answer = await ask(
-                  "Choose One : \n Enter [(N)orth, (S)outh, (E)ast, (W)est]\n "
-                );
-                battleOver = true;
-                adventure.player.lampBurn -= 1;
-                if (answer.toLowerCase().match(/e|east/g) !== null) {
-                  setVisableMap(adventure, level, row, columnPlus);
-                }
-                if (answer.toLowerCase().match(/n|north/g) !== null) {
-                  setVisableMap(adventure, level, rowMinus, column);
-                }
-                if (answer.toLowerCase().match(/s|south/g) !== null) {
-                  setVisableMap(adventure, level, rowPlus, column);
-                }
-                if (answer.toLowerCase().match(/w|west/g) !== null) {
-                  setVisableMap(adventure, level, row, columnMinus);
-                }
-                return showKnownMap(adventure);
-              } else if (!adventure.player.lamp) {
-                say(
-                  "Sorry, {0}, you don't have a Lamp.".replace(
-                    "{0}",
-                    adventure.player.race
-                  )
-                );
-              } else {
-                say(
-                  "Sorry, {0}, your Lamp is out of oil.".replace(
-                    "{0}",
-                    adventure.player.race
-                  )
-                );
-              }
-            }
+          case "l": //Shine a Lamp
+            await shineALamp(adventure);
             break;
-          case "E": //ENSW
-            monsterIgnore = false;
+          case "e": //ENSW
+            adventure.player.monsterIgnore = false;
             adventure.player.East();
             break;
-          case "N": //ENSW
-            monsterIgnore = false;
+          case "n": //ENSW
+            adventure.player.monsterIgnore = false;
             adventure.player.North();
             break;
-          case "S": //ENSW
-            monsterIgnore = false;
+          case "s": //ENSW
+            adventure.player.monsterIgnore = false;
             adventure.player.South();
             break;
-          case "W": //ENSW
-            monsterIgnore = false;
+          case "w": //ENSW
+            adventure.player.monsterIgnore = false;
             adventure.player.West();
             break;
-          case "D": //Down Stairs
-            if (
-              adventure.mape.levels[adventure.player.location[0]].rows[
-                adventure.player.location[1]
-              ].columns[adventure.player.location[2]].value === "D"
-            ) {
-              adventure.player.Down();
-            } else {
-              say(
-                "If there were stair going down then you could desend, but there's not."
-              );
-            }
+          case "d": //Down Stairs
+            await movePlayerDownStairs(adventure);
             break;
-          case "U": //Up Stairs
-            if (
-              adventure.mape.levels[adventure.player.location[0]].rows[
-                adventure.player.location[1]
-              ].columns[adventure.player.location[2]].value === "U"
-            ) {
-              adventure.player.Up();
-            } else {
-              say(
-                "If there were stair going up then you could asend, but there's not."
-              );
-            }
+          case "u": //Up Stairs
+            await movePlayerUpStairs(adventure);
             break;
-          case "T": //Teleport
-            if (adventure.player.runestaff) {
-              say("The Runestaff you carry starts to vibrate with energy.");
-
-              do {
-                let tempValue;
-                do {
-                  tempValue = await ask(
-                    "Please enter the destination. (ex. 0,0,3) Meaning Level 0, Row 0, Column 0\n"
-                  );
-                  if (tempValue.match(/^\d{1,2},\d{1,2},\d{1,2}$/) === null) {
-                    say(
-                      "I understand your a {0} and a little slow.".replace(
-                        "{0}",
-                        adventure.player.race
-                      )
-                    );
-                    await wait(1000);
-                  }
-                } while (tempValue.match(/^\d{1,2},\d{1,2},\d{1,2}$/) === null);
-                tempValue = tempValue.split(",").map((v) => Number(v));
-                function OutOfBounds(coords, adventure) {
-                  if (coords[0] - 1 > adventure.game.levels.length) return true;
-                  if (
-                    coords[1] - 1 >
-                    adventure.game.levels[coords[0] - 1].rows.length
-                  )
-                    return true;
-                  if (
-                    coords[2] - 1 >
-                    adventure.game.levels[coords[0] - 1].rows[coords[1] - 1]
-                      .columns.length
-                  )
-                    return true;
-                  if (coords[0] < 0 || coords[1] < 0 || coords[2] < 0)
-                    return true;
-                  return false;
-                }
-                if (OutOfBounds(tempValue, adventure)) {
-                  say(
-                    "Try picking an existing location on the map {0}".replace(
-                      "{0}",
-                      adventure.player.race
-                    )
-                  );
-                } else {
-                  monsterIgnore = false;
-                  say(
-                    `Teleporting you to Level ${tempValue[0]}, Row ${tempValue[1]}, Column ${tempValue[2]}`
-                  );
-                  adventure.player.location[0] = tempValue[0] - 1;
-                  adventure.player.location[1] = tempValue[1] - 1;
-                  adventure.player.location[2] = tempValue[2] - 1;
-                  action = "Teleport";
-                  nocommand = true;
-                }
-              } while (action === "T");
-            } else {
-              say(
-                "You shout out into the room\n\t{0} Teleport\nbut thing happens, you realize you need the Runestaff to teleport.".replace(
-                  "{0}",
-                  adventure.player.race
-                )
-              );
-            }
+          case "t": //Teleport
+            await teleportPlayer(adventure);
             break;
-          case "A": //Attach
-            say(
-              "You strike out with your {0} and knock the air right out. Hmm mayber there isn't anything here to attack.".replace(
-                "{0}",
-                adventure.player.weapon.type === "None"
-                  ? "hand"
-                  : adventure.player.weapon.type
-              )
-            );
+          case "a": //Attach
+            await playerAttack(adventure);
             break;
-          case "R": //Retrest
-            say(
-              "Time to hi-tail it out of here. Nice one, {0}! Escape with your life, who needs dignity.".replace(
-                "{0}",
-                adventure.player.race
-              )
-            );
+          case "r": //Retreat
+            await playerRetreat(adventure);
             break;
-          case "B": //Bribe
-            say(
-              "Dumb {0}, you cant bribe thin air.".replace(
-                "{0}",
-                adventure.player.race
-              )
-            );
+          case "b": //Bribe
+            await playerBribe(adventure);
             break;
           default:
-            action = "Q";
+            adventure.player.action = "Q";
             return end();
         }
       } else {
-        nocommand = false;
+        adventure.player.nocommand = false;
       }
-    } while (action !== "Q");
-
+    } while (adventure.player.action !== "Q");
     adventure.running = false;
   } while (adventure.running);
 }
