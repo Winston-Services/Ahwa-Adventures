@@ -5,8 +5,8 @@
   "main": "./src/index.js",
   "scripts": {
     "start": "node ./src/index.js",
-    "convert": "babel ./src -d ./dist/bundle.js",
-    "build": "npm run convert && pkg ./dist/bundle.js",
+    "convert": "babel ./src -d ./dist",
+    "build": "npm run convert && pkg .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "type": "module",
@@ -24,14 +24,19 @@
     "socket.io": "^4.7.2",
     "socket.io-client": "^4.7.2"
   },
-  "bin": "./src/index.js",
+  "bin": "./dist/index.js",
   "babel": {
     "presets": [
       "@babel/preset-env"
     ]
   },
   "pkg": {
-    "outputPath": "dist"
+    "outputPath": "./build",
+    "targets": [
+      "node18-linux-x64",
+      "node18-macos-x64",
+      "node18-win-x64"
+    ]
   },
   "devDependencies": {
     "@babel/cli": "^7.22.10",

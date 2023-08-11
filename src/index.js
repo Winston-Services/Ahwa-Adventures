@@ -1051,7 +1051,9 @@ async function play(adventure) {
       await checkPlayerDeath(adventure);
       adventure.player.turns += 1;
       if (playerLocationValue(adventure) === "X") {
-        playerLocationValue(adventure) = "-";
+        adventure.game.map.levels[adventure.player.location[0]].rows[
+          adventure.player.location[1]
+        ].columns[adventure.player.location[2]].value = "-";
       }
 
       sayCurrentPlayerLocation(adventure);
